@@ -2,6 +2,8 @@ use super::*;
 
 use ciborium_io::Write;
 
+use simdutf8::basic::from_utf8;
+
 /// An encoder for serializing CBOR items
 ///
 /// This structure wraps a writer and provides convenience functions for
@@ -114,7 +116,7 @@ impl<W: Write> Encoder<W> {
             let mut bytes = value.as_bytes();
             while !bytes.is_empty() {
                 let mut len = core::cmp::min(bytes.len(), max);
-                while len > 0 && core::str::from_utf8(&bytes[..len]).is_err() {
+                while len > 0 && from_utf8(&bytes[..len]).is_err() {
                     len -= 1
                 }
 

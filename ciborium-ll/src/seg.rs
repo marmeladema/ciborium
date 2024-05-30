@@ -4,6 +4,8 @@ use ciborium_io::Read;
 
 use core::marker::PhantomData;
 
+use simdutf8::compat::{from_utf8, Utf8Error};
+
 /// A parser for incoming segments
 pub trait Parser: Default {
     /// The type of item that is parsed
@@ -66,7 +68,7 @@ pub struct Text {
 
 impl Parser for Text {
     type Item = str;
-    type Error = core::str::Utf8Error;
+    type Error = Utf8Error;
 
     fn parse<'a>(&mut self, bytes: &'a mut [u8]) -> Result<&'a str, Self::Error> {
         // If we cannot advance, return nothing.
@@ -77,7 +79,7 @@ impl Parser for Text {
         // Copy previously invalid data into place.
         bytes[..self.stored].clone_from_slice(&self.buffer[..self.stored]);
 
-        Ok(match core::str::from_utf8(bytes) {
+        Ok(match from_utf8(bytes) {
             Ok(s) => {
                 self.stored = 0;
                 s
@@ -97,7 +99,7 @@ impl Parser for Text {
                 self.stored = invalid_len;
 
                 // Decode the valid part of the string.
-                core::str::from_utf8(&bytes[..valid_len]).unwrap()
+                from_utf8(&bytes[..valid_len]).unwrap()
             }
         })
     }

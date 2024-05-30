@@ -15,6 +15,8 @@ use serde::{
     forward_to_deserialize_any,
 };
 
+use simdutf8::basic::from_utf8;
+
 trait Expected<E: de::Error> {
     fn expected(self, kind: &'static str) -> E;
 }
@@ -336,7 +338,7 @@ where
                     let mut buf = [0u8; 4];
                     self.decoder.read_exact(&mut buf[..len])?;
 
-                    match core::str::from_utf8(&buf[..len]) {
+                    match from_utf8(&buf[..len]) {
                         Ok(s) => match s.chars().count() {
                             1 => visitor.visit_char(s.chars().next().unwrap()),
                             _ => Err(header.expected("char")),
@@ -360,7 +362,7 @@ where
                 Header::Text(Some(len)) if len <= self.scratch.len() => {
                     self.decoder.read_exact(&mut self.scratch[..len])?;
 
-                    match core::str::from_utf8(&self.scratch[..len]) {
+                    match from_utf8(&self.scratch[..len]) {
                         Ok(s) => visitor.visit_str(s),
                         Err(..) => Err(Error::Syntax(offset)),
                     }
@@ -527,7 +529,7 @@ where
                 Header::Text(Some(len)) if len <= self.scratch.len() => {
                     self.decoder.read_exact(&mut self.scratch[..len])?;
 
-                    match core::str::from_utf8(&self.scratch[..len]) {
+                    match from_utf8(&self.scratch[..len]) {
                         Ok(s) => visitor.visit_str(s),
                         Err(..) => Err(Error::Syntax(offset)),
                     }
