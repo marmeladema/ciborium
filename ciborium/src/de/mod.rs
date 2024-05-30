@@ -377,7 +377,7 @@ where
                 Header::Tag(..) => continue,
 
                 Header::Text(len) => {
-                    let mut buffer = String::new();
+                    let mut buffer = String::with_capacity(len.unwrap_or_default().min(4096));
 
                     let mut segments = self.decoder.text(len);
                     while let Some(mut segment) = segments.pull()? {
@@ -423,7 +423,7 @@ where
                 Header::Tag(..) => continue,
 
                 Header::Bytes(len) => {
-                    let mut buffer = Vec::new();
+                    let mut buffer = Vec::with_capacity(len.unwrap_or_default().min(4096));
 
                     let mut segments = self.decoder.bytes(len);
                     while let Some(mut segment) = segments.pull()? {
@@ -456,7 +456,7 @@ where
                 }),
 
                 Header::Bytes(len) => {
-                    let mut buffer = Vec::new();
+                    let mut buffer = Vec::with_capacity(len.unwrap_or_default().min(4096));
 
                     let mut segments = self.decoder.bytes(len);
                     while let Some(mut segment) = segments.pull()? {
